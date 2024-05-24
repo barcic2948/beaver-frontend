@@ -4,6 +4,7 @@ import ErrorPage from "../pages/ErrorPage";
 import LoginPage from "../pages/LoginPage";
 import store from "../redux/Store";
 import HomePage from "../pages/HomePage";
+import MainPage from "../pages/MainPage";
 
 const loginLoader = async () => {
   const isLoggedIn = store.getState().user.isLoggedIn;
@@ -24,7 +25,7 @@ const homeLoader = async () => {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <WelcomePage />,
+    element: <MainPage />,
     errorElement: <ErrorPage />,
   },
   {

@@ -1,109 +1,69 @@
-import { useState } from "react";
-import ApiClient from "../api/ApiClient";
+import React, { useState } from "react";
+import {
+  LaptopOutlined,
+  NotificationOutlined,
+  UserOutlined,
+  AimOutlined,
+} from "@ant-design/icons";
+import type { MenuProps } from "antd";
+import store from "../redux/Store";
+import { Breadcrumb, Flex, Layout, Menu, theme } from "antd";
 
-interface CreateVisitRequest {
-  description: string;
-  doctorNpwzId: string;
-  patientInsuranceId: string;
-  scheduledDateTime: string;
-}
+const { Header, Content, Sider } = Layout;
 
-interface CreateVisitResponse {
-  id: number;
-  description: string;
-  diagnostics: string | null;
-  scheduledDateTime: string;
-  visitStatus: string;
-  receptionist: any;
-  selectedDoctor: any;
-  patient: any;
-  labExaminationList: any | null;
-  physicalExaminationList: any | null;
-}
+const items1: MenuProps["items"] = ["1", "2", "3"].map((key) => ({
+  key,
+  label: `nav ${key}`,
+}));
 
-export default function HomePage() {
-  const [description, setDescription] = useState("");
-  const [doctorNpwzId, setDoctorNpwzId] = useState("");
-  const [patientInsuranceId, setPatientInsuranceId] = useState("");
-  const [scheduledDateTime, setScheduledDateTime] = useState("");
-  const [response, setResponse] = useState<CreateVisitResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+const items2: MenuProps["items"] = [
+  UserOutlined,
+  LaptopOutlined,
+  NotificationOutlined,
+].map((icon, index) => {
+  const key = String(index + 1);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const requestBody: CreateVisitRequest = {
-      description,
-      doctorNpwzId,
-      patientInsuranceId,
-      scheduledDateTime,
-    };
+  return {
+    key: `sub${key}`,
+    icon: React.createElement(icon),
+    label: `subnav ${key}`,
 
-    try {
-      const apiResponse = await ApiClient.post<
-        CreateVisitResponse,
-        CreateVisitRequest
-      >("/api/receptionist/create-visit", requestBody);
-      setResponse(apiResponse.data);
-      setError(null);
-    } catch (err) {
-      setError("Failed to create visit");
-      setResponse(null);
-    }
+    children: new Array(4).fill(null).map((_, j) => {
+      const subKey = index * 4 + j + 1;
+      return {
+        key: subKey,
+        label: `option${subKey}`,
+      };
+    }),
   };
+});
+
+const HomePage: React.FC = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
+  const user = store.getState().user;
 
   return (
-    <div>
-      <h1>Create Visit</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="description">Description:</label>
-          <input
-            id="description"
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="doctorNpwzId">Doctor NPWZ ID:</label>
-          <input
-            id="doctorNpwzId"
-            type="text"
-            value={doctorNpwzId}
-            onChange={(e) => setDoctorNpwzId(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="patientInsuranceId">Patient Insurance ID:</label>
-          <input
-            id="patientInsuranceId"
-            type="text"
-            value={patientInsuranceId}
-            onChange={(e) => setPatientInsuranceId(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="scheduledDateTime">Scheduled DateTime:</label>
-          <input
-            id="scheduledDateTime"
-            type="text"
-            value={scheduledDateTime}
-            onChange={(e) => setScheduledDateTime(e.target.value)}
-          />
-        </div>
-        <button type="submit">Create Visit</button>
-      </form>
-      {response && (
-        <div>
-          <h2>Visit Created Successfully</h2>
-          <p>ID: {response.id}</p>
-          <p>Description: {response.description}</p>
-          <p>Scheduled DateTime: {response.scheduledDateTime}</p>
-          <p>Status: {response.visitStatus}</p>
-          {/* You can display more details here */}
-        </div>
-      )}
-      {error && <p>{error}</p>}
-    </div>
+    <Layout>
+      <Header
+        style={{ display: "flex", alignItems: "center", background: "white" }}
+      >
+        <Flex style={{ width: "50%" }}>
+          <AimOutlined style={{ fontSize: "40px" }} />
+          <h1 style={{ margin: "10px" }}> Parrot App </h1>
+        </Flex>
+        <Flex style={{ width: "40%" }} justify="flex-end">
+          <UserOutlined style={{ fontSize: "30px" }} />
+          <h2 style={{ margin: "10px" }}>
+            {user.firstName} {user.lastName}
+          </h2>
+        </Flex>
+      </Header>
+    </Layout>
   );
-}
+};
+
+export default HomePage;
